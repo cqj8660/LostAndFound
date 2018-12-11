@@ -1,0 +1,45 @@
+{
+  "pages": [
+    "pages/login/login",
+    "pages/initinfo/initinfo",
+    "pages/index/index",
+    "pages/logs/logs",
+    "pages/edit/edit",
+    "pages/msg/msg",
+    "pages/index/msgdetail/msgdetail",
+    "pages/myinfo/myinfo",
+    "pages/test/index",
+    "pages/search/search",
+    "pages/userinfo/userinfo",
+    "pages/modifyinfo/modifyinfo"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#fff",
+    "navigationBarTitleText": "ECNU线上失物招领平台",
+    "navigationBarTextStyle": "black",
+    "enablePullDownRefresh": true
+  },
+  "tabBar": {
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页",
+        "iconPath": "images/tabbar/index.png",
+        "selectedIconPath": "images/tabbar/index_selected.png"
+      },
+      {
+        "pagePath": "pages/msg/msg",
+        "text": "线下根据点",
+        "iconPath": "images/tabbar/msg.png",
+        "selectedIconPath": "images/tabbar/msg_selected.png"
+      },
+      {
+        "pagePath": "pages/myinfo/myinfo",
+        "text": "我的",
+        "iconPath": "images/tabbar/myinfo.png",
+        "selectedIconPath": "images/tabbar/myinfo_selected.png"
+      }
+    ]
+  }
+}
