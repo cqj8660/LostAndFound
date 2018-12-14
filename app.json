@@ -5,7 +5,7 @@
     "pages/index/index",
     "pages/logs/logs",
     "pages/edit/edit",
-    "pages/msg/msg",
+    "pages/offline/offline",
     "pages/index/msgdetail/msgdetail",
     "pages/myinfo/myinfo",
     "pages/test/index",
@@ -16,7 +16,7 @@
   "window": {
     "backgroundTextStyle": "light",
     "navigationBarBackgroundColor": "#fff",
-    "navigationBarTitleText": "ECNU线上失物招领平台",
+    "navigationBarTitleText": "Lost&Found平台",
     "navigationBarTextStyle": "black",
     "enablePullDownRefresh": true
   },
@@ -29,7 +29,7 @@
         "selectedIconPath": "images/tabbar/index_selected.png"
       },
       {
-        "pagePath": "pages/msg/msg",
+        "pagePath": "pages/offline/offline",
         "text": "线下根据点",
         "iconPath": "images/tabbar/msg.png",
         "selectedIconPath": "images/tabbar/msg_selected.png"
