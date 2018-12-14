@@ -1,12 +1,20 @@
 // pages/modifyinfo/modifyinfo.js
+const app = getApp()
+var serverName = app.globalData.serverName
 Page({
 
   /**
    * 页面的初始数据
    */
   data: {
-    array: ['手机号','QQ', '微信号'],
+      array: ['手机号', 'QQ', '微信号'],
       index: 0,
+  },
+  bindPickerChange: function (e) {
+    console.log('picker发送选择改变，携带值为', e.detail.value)
+    this.setData({
+      index: e.detail.value
+    })
   },
   formSubmit: function (e) {
     //TODO: 表单验证
@@ -15,31 +23,58 @@ Page({
     //console.log('userid: ' + user_id)
     var contact_type = this.data.array[e.detail.value.contact_type]
     var contact_value = e.detail.value.contact_value
-    console.log(contact_type, contact_value)
-    // wx.request({
-    //   url: serverName + '/login/setcontact.php',
-    //   data: {
-    //     user_id: user_id,
-    //     contact_type: contact_type,
-    //     contact_value: contact_value,
-    //   },
-    //   method: 'GET',
-    //   header: {
-    //     'content-type': 'application/json' // 默认值
-    //   },
-    //   success: function (res) {
-    //     console.log('setcontact.php: success')
-    //     console.log(res.data)
-    //     if (res.data.code == 0) {
-    //       wx.switchTab({
-    //         url: '../index/index'
-    //       })
-    //     }
-    //     else {
-    //       console.log(res.msg);
-    //     }
-    //   }
-    // })
+    console.log(user_id, contact_type, contact_value)
+    wx.request({
+      url: serverName + '/myinfo/contact.php',
+      data: {
+        user_id: user_id,
+        type: contact_type,
+        value: contact_value,
+      },
+      method: 'GET',
+      header: {
+        'content-type': 'application/json' // 默认值
+      },
+      success: function (res) {
+        console.log('setcontact.php: success')
+        if(res.data.code == 0)
+        {
+          wx.showToast({
+            title: '修改成功',
+            icon: 'none',
+            duration: 2000,
+            mask: true,
+            success: function(res) {
+              setTimeout(function(){
+                wx.switchTab({
+                  url: '../myinfo/myinfo',
+                })
+              }, 2000)
+            },
+            fail: function(res) {},
+            complete: function(res) {},
+          })
+        }
+        else{
+          wx.showToast({
+            title: '修改失败，请联系管理员',
+            icon: 'none',
+            duration: 2000,
+            mask: true,
+            success: function (res) {
+              setTimeout(function () {
+                wx.switchTab({
+                  url: '../myinfo/myinfo',
+                })
+              }, 2000)
+             },
+            fail: function (res) { },
+            complete: function (res) { },
+          })
+        }
+
+      }
+    })
 
 
   },
