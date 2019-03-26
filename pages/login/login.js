@@ -4,10 +4,22 @@ var serverName = app.globalData.serverName
 
 Page({
   data: {
+    items: [
+      { name: 'stu', value: '用户' },
+      { name: 'admin', value: '管理员', checked: 'true' },
+    ],
     focus: false,
     inputValue: '',
     userInfo: null,
-    openid: ''
+    openid: '',
+    user_type: 'stu'
+  },
+  radioChange(e) {
+    console.log('radio发生change事件，携带value值为：', e.detail.value)
+    this.setData({
+      user_type: e.detail.value
+    })
+    console.log(this.data.user_type);
   },
   bindKeyInput: function(e) {
     this.setData({
@@ -221,6 +233,7 @@ Page({
         openid: openid,
         nickName: nickName,
         avatarUrl: avatarUrl,
+        user_type: this.data.user_type
       },
       method: 'GET', 
       header: {

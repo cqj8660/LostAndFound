@@ -8,7 +8,15 @@ page {
   padding: 19rpx 26rpx;
   background-color: #FFFFFF;
 }
-
+.radio{
+  font-size: 14px;
+  color: gray;
+}
+.log-in{
+  border-radius: 98rpx;
+  margin-top: 30px;
+  width: 100%;
+}
 .cells {
   position: relative;
   margin-top: 1.17647059em;

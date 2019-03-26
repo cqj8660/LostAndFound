@@ -36,10 +36,16 @@
       </view>
 
       <view class="btn-area">
-        <button open-type="getUserInfo" lang="zh_CN" bindgetuserinfo="bindGetUserInfo" size="mini" loading="{{loading}}"
-plain="true"type="primary" >确认绑定</button>
-</view>
+      <radio-group class="radio-group" bindchange="radioChange">
+  <label class="radio" wx:for="{{items}}">
+    <radio value="{{item.name}}" checked="{{item.checked}}" />
+    {{item.value}}
+  </label>
+</radio-group>
 
+</view>
+        <button class='log-in' open-type="getUserInfo" lang="zh_CN" bindgetuserinfo="bindGetUserInfo" size="mini" loading="{{loading}}"
+plain="true"type="primary" >登录</button>
  </form>
     </view>
    </view>
