@@ -172,7 +172,7 @@ Page({
   },
   onLoad: function () {
     var user_id = wx.getStorageSync('user_id')
-    //console.log(user_id);
+    console.log(user_id);
     
     this.get_current_user_info(user_id);
     this.get_publish_of_mine(user_id);
@@ -257,26 +257,26 @@ Page({
 
     //传入的user_id如果是当前登录者， 请用user_id: wx.getStorageSync('user_id') 传入
     var that = this
-    // console.log('get_current_user_id....')
-    // console.log(user_id)
+    console.log('get_current_user_id....')
+    console.log(user_id)
     wx.request({
-      url: serverName + '/myinfo/get_user_info.php',
+      url: serverName + '/service/user/getById',
       data: {
         user_id: user_id
       },
-      method: 'GET',
+      method: 'POST',
       header: {
-        'content-type': 'application/json' // 默认值
+        'content-type': 'application/x-www-form-urlencoded' // 默认值
       },
       
       success: function (res) {
-        console.log('get_current_user_info....')
+        console.log('get_current_user_info....!!!!!!!')
         console.log(res)
         that.setData({
-          nickName: res.data['nickName'],
-          avatarUrl: res.data['avatarUrl'],
-          contact_type: res.data['contact_type'],
-          contact_value: res.data['contact_value']
+          nickName: res.data.data['nick_name'],
+          avatarUrl: res.data.data['avatar_url'],
+          contact_type: res.data.data['contact_type'],
+          contact_value: res.data.data['contact_value']
         })
       }
     })

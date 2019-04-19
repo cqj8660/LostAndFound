@@ -39,28 +39,61 @@ Page({
   },
   wxLogin: function(e) {
     var that = this;
+    // console.log(app.globalData.userInfo);
+    //获得用户的openid
     wx.login({
-      success:function(res){
-        that.setData({
-          code: res.code
+      success: function (res) {
+        console.log(res);//获取code
+        wx.request({
+          url: 'https://lostandfound.yiwangchunyu.wang/service/user/getOpenid',
+          data: {
+            js_code: res.code,//获取openid和session_key
+          },
+          header: {
+            'content-type': 'application/x-www-form-urlencoded' // 默认值
+          },
+          method: 'POST',
+          success: function (res) {
+            console.log(res);
+            // console.log(res.data.data.openid);
+            wx.setStorageSync('openid', res.data.data.openid);
+          }
         })
       }
     })
-    console.log(that.data.code);
+
+    var openid = wx.getStorageSync('openid');
     wx.request({
-      url: serverName + '/service/user/getOpenid',
+      url: 'https://lostandfound.yiwangchunyu.wang/service/user/loginByUid',
       data: {
-        js_code: that.data.code,
+        openid: openid,
+        user_id: that.data.inputValue,
+        password: that.data.pwd,
+        avatar_url: app.globalData.userInfo.avatarUrl
       },
-      method: 'post',
+      method: 'POST',
       header: {
-        'content-type': 'application/json' // 默认值
+        'content-type': 'application/x-www-form-urlencoded' // 默认值
       },
-      success: function (res) {
-        console.log(res);
+      success: function(e){
+        console.log('2345')
+        console.log(e);
+
+        if(e.data.code == 0){
+          wx.setStorageSync('user_id', e.data.data.user_id);
+          if(e.data.data.contact_type){
+            wx.switchTab({
+              url: '../index/index'
+            })
+          }
+          else{
+                wx.redirectTo({
+      url: '../initinfo/initinfo'
+    })
+          }
+        }
       }
     })
-
   } ,
   formSubmit: function(e) {
     //TODO:表单检查
@@ -73,68 +106,33 @@ Page({
 
   onLoad: function() {
     console.log("login onLoad...")
-    // wx.redirectTo({
-    //   url: '../initinfo/initinfo'
-    // })
     var that = this
     that.setData({
       userInfo: app.globalData.userInfo
     })
-    //获得用户的openid
-    var openid = (wx.getStorageSync('openid'))
-
-    if (openid) {
-      wx.getUserInfo({
-        success: function(res) {
-          that.setData({
-            nickName: res.userInfo.nickName,
-            avatarUrl: res.userInfo.avatarUrl,
-          })
-        },
-        fail: function() {
-          // fail
-          console.log("获取失败！")
-        },
-        complete: function() {
-          // complete
-          that.setData({
-            openid: openid
-          })
-          console.log("获取用户信息完成！")
-          console.log("openid: " + openid)
-
-        }
-      })
-    }
-    //用户身份验证
-    if (openid) {
+    var openid = wx.getStorageSync('openid');
+    console.log(openid);
+    if(openid){
       wx.request({
-        url: serverName + '/login/auto_login.php',
+        url: 'https://lostandfound.yiwangchunyu.wang/service/user/loginByOpenid',
+        method: 'POST',
         data: {
-          openid: openid,
-
+          openid: openid
         },
-        method: 'GET',
         header: {
-          'content-type': 'application/json' // 默认值
+          'content-type': 'application/x-www-form-urlencoded' // 默认值
         },
-        success: function(res) {
-          console.log('1322')
-          console.log(res)
-          console.log(res.data)
-          if (res.data.user_id) {
-            wx.setStorageSync('user_id', res.data.user_id);
+        success: function (e) {
+          console.log(e);
+          if(e.data.code == 0){
+            wx.setStorageSync('user_id', e.data.user_id);
             wx.switchTab({
               url: '../index/index'
             })
           }
-
         }
+
       })
-
-    } else {
-      console.log(openid)
-
     }
 
   },
