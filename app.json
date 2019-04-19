@@ -41,5 +41,6 @@
         "selectedIconPath": "images/tabbar/myinfo_selected.png"
       }
     ]
-  }
+  },
+  "sitemapLocation": "sitemap.json"
 }
