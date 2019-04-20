@@ -123,8 +123,10 @@
   position: relative;
   width: 150px;
   left: 10px;
-  font-size: 16px;
-  color:grey;
+  top: 10px;
+  font-size: 15px;
+  color: rgb(92, 107, 171);
+  font-weight: bold;
 }
 .time
 {

@@ -93,17 +93,17 @@ Page({
     console.log('Data!!!')
     console.log(Data)
     for (i = 0; i < Data.length; i++) {
-      var userid = Data[i].nickName;
-      var Msg = Data[i].msg;
-      var Submission_time = Data[i].submission_time.substring(5, Data[i].submission_time.length - 3);
+      var userid = Data[i].user_info.nick_name;
+      var Msg = Data[i].content;
+      var Submission_time = Data[i].mtime;
       var imageurl = '';
-      var user_icon = Data[i].avatarUrl;
-      var publish_id = Data[i].publish_id;
-      var imageList = that.data.publish_data[i].image_url;
+      var user_icon = Data[i].user_info.avatar_url;
+      var publish_id = Data[i].dynamic_id;
+      var imageList = that.data.publish_data[i].images;
       // var nick_name = that.Data[i].nickName,
       // var avatarUrl = that.Data[i].avatarUrl,
-      if (Data[i].image_exist == "1")
-        imageurl =Data[i].image_url[0];
+      if (Data[i].images)
+        imageurl =Data[i].images[0];
       //   if (that.Data[i].type == 'lost')
       this.data.listfound.push({
         username: userid, text: Msg, image: imageurl, imagelist: imageList, usericon: user_icon, sub_time: Submission_time, publish_id: publish_id
@@ -151,15 +151,17 @@ Page({
   {
     
     console.log("logout---------------")
-    console.log(wx.getStorageSync('openid'))
+    console.log(wx.getStorageSync('openid'));
+    console.log(wx.getStorageSync('user_id'));
     wx.request({
-      url: serverName + '/logout.php',
+      url: serverName + '/service/user/logout',
       data: {
-        openid: wx.getStorageSync('openid')
+        openid: wx.getStorageSync('openid'),
+        user_id: wx.getStorageSync('user_id')
       },
-      method: 'GET',
+      method: 'POST',
       header: {
-        'content-type': 'application/json' // 默认值
+        'content-type': 'application/x-www-form-urlencoded' // 默认值
       },
       success: function (res) {
         console.log("---------------")
@@ -172,7 +174,7 @@ Page({
   },
   onLoad: function () {
     var user_id = wx.getStorageSync('user_id')
-    console.log(user_id);
+    console.log('userid is ' + user_id);
     
     this.get_current_user_info(user_id);
     this.get_publish_of_mine(user_id);
@@ -184,14 +186,8 @@ Page({
    // console.log(publish_data)
     while (this.data.listfound.length != 0)
       this.data.listfound.pop();
-    
-    console.log('清空');
-    console.log(this.data.listfound);
-    console.log('上面是found信息')
     while (this.data.listlost.length != 0)
       this.data.listlost.pop();
-    console.log(this.data.listlost);
-    console.log('上面是lost信息')
     var that = this;
 
     this.index = 1
@@ -234,19 +230,20 @@ Page({
 
   deleteSingleMassageById: function (publish_id) {
     var that = this;
+    console.log('待删除的消息id为'+publish_id)
     wx.request({
-      url: serverName + '/myinfo/delete_publish.php',
+      url: serverName + '/service/dynamic/delete',
       data: {
-        publish_id: publish_id
+        dynamic_id: publish_id
       },
-      method: 'GET',
+      method: 'POST',
       header: {
-        'content-type': 'application/json' // 默认值
+        'content-type': 'application/x-www-form-urlencoded' // 默认值
       },
       success: function (res) {
         console.log('deleteSingleMassageById: success')
         console.log(res.data)
-        if (res.data == 'true') {
+        if (res.data.code == 0) {
           that.onLoad();
         }
       }
@@ -257,8 +254,6 @@ Page({
 
     //传入的user_id如果是当前登录者， 请用user_id: wx.getStorageSync('user_id') 传入
     var that = this
-    console.log('get_current_user_id....')
-    console.log(user_id)
     wx.request({
       url: serverName + '/service/user/getById',
       data: {
@@ -270,8 +265,6 @@ Page({
       },
       
       success: function (res) {
-        console.log('get_current_user_info....!!!!!!!')
-        console.log(res)
         that.setData({
           nickName: res.data.data['nick_name'],
           avatarUrl: res.data.data['avatar_url'],
@@ -289,24 +282,22 @@ Page({
     //传入的user_id如果是当前登录者， 请用user_id: wx.getStorageSync('user_id') 传入
     var that = this
     wx.request({
-      url: serverName + '/myinfo/show_user_publishing.php',
+      url: serverName + '/service/dynamic/show',
       data: {
         user_id: user_id
       },
-      method: 'GET',
+      method: 'POST',
       header: {
-        'content-type': 'application/json' // 默认值
+        'content-type': 'application/x-www-form-urlencoded' // 默认值
       },
       success: function (res) {
         console.log(' get_publish_of_mine......')
         console.log(res)
         that.setData({
-          publish_data: res.data
+          publish_data: res.data.data.dynamics
         })
-        var publish_data=res.data
-        that.Loadmsg(publish_data)
-
-
+        var publish_data=res.data.data.dynamics;
+        that.Loadmsg(publish_data);
       }
     })
 

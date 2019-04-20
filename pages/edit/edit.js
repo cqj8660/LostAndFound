@@ -12,6 +12,7 @@ Page({
     type_array:['lost','found'],
     listfound: [{ header: ' ' }],
     listlost: [{ header: ' ' },],
+    images: [],
     activeIndex: 1,
     userInfo: {},
     hasUserInfo: false,
@@ -112,85 +113,88 @@ Page({
 
   formSubmit: function (e) {
     console.log('form发生了submit事件，携带数据为：', e.detail.value)
-    console.log(e)
+
+    console.log(e);
     var that = this;
     var formData = e.detail.value;
-
     var user_id = wx.getStorageSync('user_id')
     var type_t = this.data.type_array[this.data.currentTab]
     var category = this.data.category
     var title = ''
     var msg = e.detail.value.input
     var imagesPaths = this.data.filep
+    console.log('我要发布啦！！！',user_id, type_t, category, title, msg, imagesPaths)
     console.log("imageList..........")
-    console.log(this.data)
     console.log(imagesPaths)
     //在此调用uploadAll接口
-    this.uploadAll(user_id, type_t, category, title, msg, imagesPaths)
-
-    // //跳转到主页
-    // wx.switchTab({
-    //   url: '../index/index',
-    //   success: function (e) {
-    //     var page = getCurrentPages().pop();
-    //     if (page == undefined || page == null) return;
-    //     setTimeout(function () {
-    //       page.onLoad();
-    //     }, 2000);  
-        
-    //   }
-    // })  
+    this.uploadAll(user_id, type_t, category, title, msg, imagesPaths,[])
   },
 
   //imagesPaths图片路径数组
+  updatePhoto: function (dynamic_id, images){
+    console.log("imagesurl列表为")
+    console.log(images.length) 
+    var imageurls = JSON.stringify(images);
+    console.log(imageurls);
+    wx.request({
+      url: serverName + '/service/dynamic/update',
+      method: 'POST',
+      data: {
+        dynamic_id: dynamic_id,
+        images: imageurls
+      },
+      header: {
+        'content-type': 'application/x-www-form-urlencoded' // 默认值
+      },
+      success: function (e) {
+        console.log('修改上传图片')
+        console.log(e)
+      }
+    })
+  },
   uploadAll: function (user_id, type_t, category, title, msg, imagesPaths) {
     var publish_id=null;
+    var that = this;
     wx.request({
-      url: serverName + '/edit/edit.php',
+      url: serverName + '/service/dynamic/creater',
       data: {
         user_id: user_id,
-        type_t: type_t,
+        type: type_t,
         category: category,
-        title: title,
-        msg: msg,
-        image_exist: 0,
-
+        content: msg,
       },
-      method: 'GET',
+      method: 'POST',
       header: {
-        'content-type': 'application/json' // 默认值
+        'content-type': 'application/x-www-form-urlencoded' // 默认值
       },
       success: function (res) {
-        // if(res.data.code)
-        if(res.data.code == -2){
-          wx.showToast({
-            title: '对不起，您发送的内容中带有敏感内容，请编辑后重发',
-            icon: 'none'
-          })
-          return;
-        }
-
-        publish_id=res.data.data.publish_id;
-        console.log('当前数据库返回的publish_id')
-        console.log(publish_id)
+        console.log(res);
+        if(res.data.code == 0)
+        {
+          var dynamic_id = res.data.data.dynamic_id;
+          console.log('当前发布的动态id为',dynamic_id);
+          var temp = [];
         for (var path in imagesPaths){
-          console.log(imagesPaths[path])
+          console.log(path)
+          
           wx.uploadFile({
-            url: serverName + '/edit/upload.php',
+            url: serverName + '/service/upload/uploadImg',
             filePath: imagesPaths[path],
-            name: "file",
-            formData: {
-              publish_id: publish_id
-            },
+            name: "images",
             success: function (res) {
-              console.log('图片上传完成！')
-              console.log(res)
-            
+              console.log('图片上传！')
+              var fdata = JSON.parse(res.data).data;
+              fdata = JSON.parse(fdata)
+              temp.push(fdata[0])
+              console.log(temp);
+              if(temp.length == imagesPaths.length)
+                that.updatePhoto(dynamic_id,temp);
             },
             fail: function (err) {
               console.log(err)
             }
           })
+          
         }
         //跳转到主页
         wx.switchTab({
@@ -204,6 +208,12 @@ Page({
 
           }
         })
+        }
+        // publish_id=res.data.data.publish_id;
+        // console.log('当前数据库返回的publish_id')
+        // console.log(publish_id)
+
+
         
         
       }

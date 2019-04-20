@@ -123,9 +123,8 @@ Page({
           'content-type': 'application/x-www-form-urlencoded' // 默认值
         },
         success: function (e) {
-          console.log(e);
           if(e.data.code == 0){
-            wx.setStorageSync('user_id', e.data.user_id);
+            wx.setStorageSync('user_id', e.data.data.user_id);
             wx.switchTab({
               url: '../index/index'
             })
