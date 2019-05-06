@@ -45,17 +45,15 @@ Page({
     var that = this;
     var i = 0;
     for (i = 0; i < that.data.search_data.length; i++) {
-      var nickName = that.data.search_data[i].nickName;
-      var Msg = that.data.search_data[i].msg;
-      var user_id = that.data.search_data[i].user_id;
-      var Submission_time = that.data.search_data[i].submission_time.substring(5, that.data.search_data[i].submission_time.length - 3);
+      var nickName = that.data.search_data[i].user_info.nick_name;
+      var Msg = that.data.search_data[i].content;
+      var user_id = that.data.search_data[i].user_info.user_id;
+      var Submission_time = that.data.search_data[i].ctime;
       var imageurl = '';
-      var imageList = that.data.search_data[i].image_url;
-      var user_icon = that.data.search_data[i].avatarUrl;
-      // var nick_name = that.data.search_data[i].nickName,
-      // var avatarUrl = that.data.search_data[i].avatarUrl,
-      if (that.data.search_data[i].image_exist == "1")
-        imageurl = that.data.search_data[i].image_url[0];
+      var imageList = that.data.search_data[i].images;
+      var user_icon = that.data.search_data[i].user_info.avatar_url;
+      if (that.data.search_data[i].images)
+        imageurl = that.data.search_data[i].images[0];
         this.data.listofitem.push({
           userid: user_id, username: nickName, text: Msg, imagelist: imageList, image: imageurl, usericon: user_icon, sub_time: Submission_time
         })
@@ -79,20 +77,21 @@ Page({
   },
   search_database: function (key, obj) {
     wx.request({
-      url: serverName + '/index/search.php',
+      url: serverName + '/service/dynamic/show',
       data: {
-        key: key
+        content__icontains: key
       },
-      method: 'GET',
+      method: 'POST',
       header: {
-        'content-type': 'application/json' // 默认值
+        'content-type': 'application/x-www-form-urlencoded' // 默认值
       },
       success: function (res) {
+        console.log(res);
         obj.setData({
-          search_data: res.data
+          search_data: res.data.data.dynamics
         })
         console.log('当前数据库返回的search记录');
-        console.log(obj.data.search_data);
+        // console.log(res);
         obj.Loadmsg();
       }
     })
@@ -104,33 +103,33 @@ Page({
   },
 
   onLoad: function (options) {
-    this.ref = app.getTodoRef();
-    this.ref.on('child_added', function (snapshot, prkey) {
-      var key = snapshot.key()
-      var text = snapshot.val()
-      // JSON结构
-      var newItem = { key: key, text: text }
-      this.data.searchs.push(newItem);
-      this.setData({
-        searchs: this.data.searchs
-      })
-    }, this);
-    this.ref.on('child_removed', function (snapshot) {
-      var key = snapshot.key();
-      var index = this.data.searchs.findIndex(
-        (item, index) => {
-          if (item.key == key) {
-            return true;
-          }
-          return false;
-        });
-      if (index >= 0) {
-        this.data.searchs.splice(index, 1);
-        this.setData({
-          searchs: this.data.searchs
-        })
-      }
-    }, this)
+    // this.ref = app.getTodoRef();
+    // this.ref.on('child_added', function (snapshot, prkey) {
+    //   var key = snapshot.key()
+    //   var text = snapshot.val()
+    //   // JSON结构
+    //   var newItem = { key: key, text: text }
+    //   this.data.searchs.push(newItem);
+    //   this.setData({
+    //     searchs: this.data.searchs
+    //   })
+    // }, this);
+    // this.ref.on('child_removed', function (snapshot) {
+    //   var key = snapshot.key();
+    //   var index = this.data.searchs.findIndex(
+    //     (item, index) => {
+    //       if (item.key == key) {
+    //         return true;
+    //       }
+    //       return false;
+    //     });
+    //   if (index >= 0) {
+    //     this.data.searchs.splice(index, 1);
+    //     this.setData({
+    //       searchs: this.data.searchs
+    //     })
+    //   }
+    // }, this)
   },
   getUserInfo: function (e) {
     console.log(e)

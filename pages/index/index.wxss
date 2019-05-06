@@ -124,7 +124,7 @@
   padding-top: 8px;
   padding-right: 8px;
   padding-bottom: 8px;
-  margin-top: 3px;
+  margin-top: 5px;
   background-color: #fff;
   border: 1px solid #eaeaea;
   border-bottom: 1px solid #d0d0d0;
@@ -139,8 +139,10 @@
   position: relative;
   width: 150px;
   left: 10px;
+  top: 10px;
   font-size: 15px;
-  color: grey;
+  color: rgb(92, 107, 171);
+  font-weight: bold;
 }
 .time
 {

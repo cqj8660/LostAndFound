@@ -253,8 +253,10 @@ weui-search-bar {
   position: relative;
   width: 150px;
   left: 10px;
+  top: 10px;
   font-size: 15px;
-  color: grey;
+  color: rgb(92, 107, 171);
+  font-weight: bold;
 }
 .time
 {

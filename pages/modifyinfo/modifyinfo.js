@@ -25,18 +25,19 @@ Page({
     var contact_value = e.detail.value.contact_value
     console.log(user_id, contact_type, contact_value)
     wx.request({
-      url: serverName + '/myinfo/contact.php',
+      url: serverName + '/service/user/update',
       data: {
         user_id: user_id,
-        type: contact_type,
-        value: contact_value,
+        contact_type: contact_type,
+        contact_value: contact_value,
       },
-      method: 'GET',
+      method: 'POST',
       header: {
-        'content-type': 'application/json' // 默认值
+        'content-type': 'application/x-www-form-urlencoded' // 默认值
       },
       success: function (res) {
-        console.log('setcontact.php: success')
+        console.log('update: success')
+        console.log(res);
         if(res.data.code == 0)
         {
           wx.showToast({

@@ -4,15 +4,22 @@ var serverName = app.globalData.serverName
 
 Page({
   data: {
-    items: [
-      { name: 'stu', value: '用户' },
-      { name: 'admin', value: '管理员', checked: 'true' },
+    items: [{
+        name: 'stu',
+        value: '用户'
+      },
+      {
+        name: 'admin',
+        value: '管理员',
+        checked: 'true'
+      },
     ],
     focus: false,
     inputValue: '',
     userInfo: null,
     openid: '',
-    user_type: 'stu'
+    user_type: 'stu',
+    code: ' '
   },
   radioChange(e) {
     console.log('radio发生change事件，携带value值为：', e.detail.value)
@@ -32,118 +39,107 @@ Page({
     })
   },
   bindGetUserInfo: function(e) {
+    var that = this;
     console.log('bindgetuserinfo 调用')
     // console.log(e);
-    this.wxLogin();
-  },
-  wxLogin: function(e) {
-    var that = this;
-    var openid;
-    wx.login({
-      success: function(res) {
-        console.log('code: ' + res.code)
-        if (res.code) {
+    wx.getSetting({
+      success: res => {
+        if (res.authSetting['scope.userInfo']) {
+          // 已经授权，可以直接调用 getUserInfo 获取头像昵称，不会弹框
           wx.getUserInfo({
-            withCredentials: true,
-            success: function(res_user) {
-              console.log(res_user.userInfo.avatarUrl);
-              wx.request({
-                //后台接口地址
-                url: serverName + '/getopenid.php',
-                data: {
-                  code: res.code,
-                  //encryptedData: res_user.encryptedData,
-                  //iv: res_user.iv
-                },
-                method: 'GET',
-                header: {
-                  'content-type': 'application/json'
-                },
-                success: function(res) {
-                  // this.globalData.userInfo = JSON.parse(res.data);
-                  console.log(res);
-                  that.setData({
-                    // nickName: res.data.nickName,
-                    // avatarUrl: res.data.avatarUrl,
-                    openid: res.data.openid,
-                  })
-                  app.globalData.openid = openid;
-                  wx.setStorageSync('openid', res.data.openid);
-                  // console.log('getopenid: ' + res.data)
-                  console.log("获取用户openid成功！")
-                  console.log("openid: " + res.data.openid)
-                  var user_id = that.data.inputValue;
-                  var user_password = that.data.pwd;
-                  var openid = that.data.openid;
-                  var nickName = that.data.nickName;
-                  var avatarUrl = res_user.userInfo.avatarUrl;
-                  console.log(avatarUrl);
-                  that.register(user_id, user_password, openid, nickName, avatarUrl)
-                },
-                fail: function(err) {
-                  console.log(err)
-                }
-              })
-            },
-            fail: function() {
-              wx.showModal({
-                title: '警告通知',
-                content: '您点击了拒绝授权,将无法正常显示个人信息,点击确定重新获取授权。',
-                success: function(res) {
-                  if (res.confirm) {
-                    wx.openSetting({
-                      success: (res) => {
-                        if (res.authSetting["scope.userInfo"]) { ////如果用户重新同意了授权登录
-                          wx.login({
-                            success: function(res_login) {
-                              if (res_login.code) {
-                                wx.getUserInfo({
-                                  withCredentials: true,
-                                  success: function(res_user) {
-                                    wx.request({
-                                      url: serverName + '/getopenid.php',
-                                      data: {
-                                        code: res_login.code,
-                                        encryptedData: res_user.encryptedData,
-                                        iv: res_user.iv
-                                      },
-                                      method: 'GET',
-                                      header: {
-                                        'content-type': 'application/json'
-                                      },
-                                      success: function(res) {
-                                        that.setData({
-                                          nickName: res.data.nickName,
-                                          avatarUrl: res.data.avatarUrl,
-
-                                        })
-                                        wx.setStorageSync('openid', res.data.openid);
-                                      }
-                                    })
-                                  }
-                                })
-                              }
-                            }
-                          });
-                        }
-                      },
-                      fail: function(res) {
-
-                      }
-                    })
-
-                  }
-                }
-              })
-            },
-            complete: function(res) {
-
+            success: res => {
+              // 可以将 res 发送给后台解码出 unionId
+              app.globalData.userInfo = res.userInfo
+              console.log(res.userInfo)
+              if(that.data.inputValue == '' || that.data.pwd == '')
+              {
+                wx.showToast({
+                  title: '请输入用户名和密码',
+                  icon: 'none',
+                  duration: 2000
+                })
+                return
+              }
+              this.wxLogin();
+              // 由于 getUserInfo 是网络请求，可能会在 Page.onLoad 之后才返回
+              // 所以此处加入 callback 以防止这种情况
+              if (this.userInfoReadyCallback) {
+                this.userInfoReadyCallback(res)
+              }
             }
           })
         }
       }
     })
+  },
+  wxLogin: function(e) {
+    var that = this;
+    // console.log(app.globalData.userInfo);
+    //获得用户的openid
+    wx.login({
+      success: function(res) {
+        console.log(res); //获取code
+        wx.request({
+          url: 'https://lostandfound.yiwangchunyu.wang/service/user/getOpenid',
+          data: {
+            js_code: res.code, //获取openid和session_key
+          },
+          header: {
+            'content-type': 'application/x-www-form-urlencoded' // 默认值
+          },
+          method: 'POST',
+          success: function(res) {
+            console.log(res);
+            // console.log(res.data.data.openid);
+            wx.setStorageSync('openid', res.data.data.openid);
+          }
+        })
+      }
+    })
 
+    var openid = wx.getStorageSync('openid');
+    wx.request({
+      url: 'https://lostandfound.yiwangchunyu.wang/service/user/loginByUid',
+      data: {
+        openid: openid,
+        user_id: that.data.inputValue,
+        password: that.data.pwd,
+        avatar_url: app.globalData.userInfo.avatarUrl
+      },
+      method: 'POST',
+      header: {
+        'content-type': 'application/x-www-form-urlencoded' // 默认值
+      },
+      success: function(e) {
+        console.log(e)
+        if (e.data.code == 0) {
+          wx.setStorageSync('user_id', e.data.data.user_id);
+          console.log(e.data.data)
+          if (e.data.data.contact_type) {
+            wx.showToast({
+              title: '登录成功',
+              icon: 'success',
+              duration: 3000,
+              success: function(e) {
+                wx.switchTab({
+                  url: '../index/index'
+                })
+              }
+            })
+          } else {
+            wx.redirectTo({
+              url: '../initinfo/initinfo'
+            })
+          }
+        } else {
+          wx.showToast({
+            title: e.data.msg,
+            icon: 'none',
+          })
+          that.onLoad()
+        }
+      }
+    })
   },
   formSubmit: function(e) {
     //TODO:表单检查
@@ -156,69 +152,34 @@ Page({
 
   onLoad: function() {
     console.log("login onLoad...")
-    // wx.redirectTo({
-    //   url: '../initinfo/initinfo'
-    // })
+
     var that = this
     that.setData({
       userInfo: app.globalData.userInfo
     })
-    //获得用户的openid
-    var openid = (wx.getStorageSync('openid'))
+    var openid = wx.getStorageSync('openid');
 
     if (openid) {
-      wx.getUserInfo({
-        success: function(res) {
-          that.setData({
-            nickName: res.userInfo.nickName,
-            avatarUrl: res.userInfo.avatarUrl,
-          })
-        },
-        fail: function() {
-          // fail
-          console.log("获取失败！")
-        },
-        complete: function() {
-          // complete
-          that.setData({
-            openid: openid
-          })
-          console.log("获取用户信息完成！")
-          console.log("openid: " + openid)
-
-        }
-      })
-    }
-    //用户身份验证
-    if (openid) {
-      console.log('13:19');
+      console.log(openid);
       wx.request({
-        url: serverName + '/login/auto_login.php',
+        url: 'https://lostandfound.yiwangchunyu.wang/service/user/loginByOpenid',
+        method: 'POST',
         data: {
-          openid: openid,
-
+          openid: openid
         },
-        method: 'GET',
         header: {
-          'content-type': 'application/json' // 默认值
+          'content-type': 'application/x-www-form-urlencoded' // 默认值
         },
-        success: function(res) {
-          console.log('1322')
-          console.log(res)
-          console.log(res.data)
-          if (res.data.user_id) {
-            wx.setStorageSync('user_id', res.data.user_id);
+        success: function(e) {
+          if (e.data.code == 0) {
+            wx.setStorageSync('user_id', e.data.data.user_id);
             wx.switchTab({
               url: '../index/index'
             })
           }
-
         }
+
       })
-
-    } else {
-      console.log(openid)
-
     }
 
   },
@@ -235,7 +196,7 @@ Page({
         avatarUrl: avatarUrl,
         user_type: this.data.user_type
       },
-      method: 'GET', 
+      method: 'GET',
       header: {
         'content-type': 'application/json' // 默认值
       },
@@ -256,15 +217,15 @@ Page({
           })
         } else if (res.data.data.tag == 'registered') {
           wx.setStorageSync('user_id', user_id);
-
-          console.log('-----')
-          wx.switchTab({
-            url: '../index/index'
-          })
           wx.showToast({
             title: '登录成功',
             icon: 'success',
-            duration: 5000
+            duration: 3000,
+            success: function(e) {
+              wx.switchTab({
+                url: '../index/index'
+              })
+            }
           })
         }
       }

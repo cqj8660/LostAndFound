@@ -27,22 +27,22 @@ Page({
 
     console.log('form发生了submit事件，携带数据为：', e.detail.value)
     var user_id = (wx.getStorageSync('user_id'))
-    //console.log('userid: ' + user_id)
+    console.log('userid: ' + user_id)
     var contact_type = this.data.array[e.detail.value.contact_type]
     var contact_value = e.detail.value.contact_value
     wx.request({
-      url: serverName + '/login/setcontact.php',
+      url: serverName + '/service/user/update',
       data: {
         user_id: user_id,
         contact_type: contact_type,
         contact_value: contact_value,
       },
-      method: 'GET',
+      method: 'POST',
       header: {
-        'content-type': 'application/json' // 默认值
+        'content-type': 'application/x-www-form-urlencoded'  // 默认值
       },
       success: function (res) {
-        console.log('setcontact.php: success')
+        console.log('update: success')
         console.log(res.data)
         if (res.data.code == 0) {
           wx.switchTab({

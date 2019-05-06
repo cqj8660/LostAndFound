@@ -160,23 +160,26 @@ Page({
       this.data.listlost.pop();
     var i = 0;
     for (i = 0; i < that.data.publish_data.length; i++) {
-      var nickName = that.data.publish_data[i].nickName;
-      var Msg = that.data.publish_data[i].msg;
+      var Msg = that.data.publish_data[i].content;
       var user_id = that.data.publish_data[i].user_id;
-      var Submission_time = that.data.publish_data[i].submission_time.substring(5, that.data.publish_data[i].submission_time.length - 3);
+      var str = that.data.publish_data[i].ctime;
+      var Submission_time = str.substring(5, 10) + " " + that.data.publish_data[i].ctime.substring(11, str.length - 1);
+      // Submission_time[5]=Submission_time[Submission_time.length - 1] =' '
       var imageurl = '';
-      var imageList = that.data.publish_data[i].image_url;
-      var user_icon = that.data.publish_data[i].avatarUrl;
-      // var nick_name = that.data.publish_data[i].nickName,
+      // console.log(""+that.data.publish_data[i].images);
+      var imageList = (that.data.publish_data[i].images);
+      // console.log('imageList:', imageList);
+      var user_icon = that.data.publish_data[i].user_info.avatar_url;
+      var nick_name = that.data.publish_data[i].user_info.nick_name;
       // var avatarUrl = that.data.publish_data[i].avatarUrl,
-      if (that.data.publish_data[i].image_exist == "1")
-        imageurl =that.data.publish_data[i].image_url[0];
+      if (that.data.publish_data[i].images)
+        imageurl =that.data.publish_data[i].images[0];
       if (that.data.publish_data[i].type == 'found')
         this.data.listfound.push({
-          userid:user_id,username: nickName, text: Msg, imagelist:imageList,image: imageurl, usericon: user_icon, sub_time: Submission_time
+          userid:user_id,username: nick_name, text: Msg, imagelist:imageList,image: imageurl, usericon: user_icon, sub_time: Submission_time
         })
       else
-        this.data.listlost.push({ userid: user_id, username: nickName, text: Msg, imagelist: imageList, image: imageurl, usericon: user_icon, sub_time: Submission_time });
+        this.data.listlost.push({ userid: user_id, username: nick_name, text: Msg, imagelist: imageList, image: imageurl, usericon: user_icon, sub_time: Submission_time });
     }
     if (this.data.activeIndex == 1)
       this.setData({
@@ -209,17 +212,13 @@ Page({
   onLoad: function () {
     var user_id = wx.getStorageSync('user_id');
     console.log(user_id);
-    if(user_id=='1234567')//判断是否是测试账号
-      this.setData({
-        check: false
-      });
     while(this.data.listfound.length!=1)
       this.data.listfound.pop();
-    console.log('清空');
-    console.log(this.data.listfound);
+    // console.log('清空');
+    // console.log(this.data.listfound);
     while (this.data.listlost.length!= 1)
       this.data.listlost.pop();
-    console.log(this.data.listlost);
+    // console.log(this.data.listlost);
     var that = this;
 
     this.index = 1
@@ -242,37 +241,51 @@ Page({
     //   })
     // })
     this.show_publish_infos('found', '所有', this)
-    console.log(this.data)
+    // console.log(this.data)
   },
   
   //获取发布信息的接口，传入分类数据
   show_publish_infos: function(type_t, category, obj){
     console.log('type_t:'+ type_t);
     console.log('category:' + category);
-    var  _data;
-    if(category == '所有'){
-      _data = {'type': type_t};
-    }
-    else{
-      _data = { 'type': type_t,'category': category}
-    }
-
-    wx.request({
-      url: serverName + '/index/show.php',
-      data: _data,
-      method: 'GET',
-      header: {
-        'content-type': 'application/json' // 默认值
-      },
-      success: function (res) {
-        obj.setData({
-          publish_data: res.data.data
-        })
-        console.log('当前数据库返回的publish记录')
-        console.log(obj.data.publish_data)
-        obj.Loadmsg()
-      }
-    })
-
+    if(category == '所有')
+      wx.request({
+        url: serverName + '/service/dynamic/show',
+        data: {
+          type: type_t,
+        },
+        method: 'POST',
+        header: {
+          'content-type': 'application/x-www-form-urlencoded' // 默认值
+        },
+        success: function (res) {
+          obj.setData({
+            publish_data: res.data.data.dynamics
+          })
+          // console.log('当前数据库返回的publish记录')
+          // console.log(res)
+          obj.Loadmsg()
+        }
+      })
+      else
+      wx.request({
+        url: serverName + '/service/dynamic/show',
+        data: {
+          type: type_t,
+          category: category
+        },
+        method: 'POST',
+        header: {
+          'content-type': 'application/x-www-form-urlencoded' // 默认值
+        },
+        success: function (res) {
+          obj.setData({
+            publish_data: res.data.data.dynamics
+          })
+          // console.log('当前数据库返回的publish记录')
+          // console.log(res)
+          obj.Loadmsg()
+        }
+      })
   },
 })
