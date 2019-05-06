@@ -113,8 +113,15 @@ Page({
 
   formSubmit: function (e) {
     console.log('form发生了submit事件，携带数据为：', e.detail.value)
-
-    console.log(e);
+    if(e.detail.value.input == "")
+    {
+      wx.showToast({
+        title: '请输入要发布的内容',
+        icon: 'none',
+        duration: 2000
+      })
+      return;
+    }
     var that = this;
     var formData = e.detail.value;
     var user_id = wx.getStorageSync('user_id')
@@ -196,6 +203,11 @@ Page({
           })
           
         }
+        wx.showToast({
+          title: '发布成功',
+          icon: 'none',
+          duration: 3000
+        })
         //跳转到主页
         wx.switchTab({
           url: '../index/index',

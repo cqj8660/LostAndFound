@@ -31,49 +31,13 @@ Page({
     actionSheetHidden: true,
 
   },
-
+  onShow: function(){
+    this.onLoad();
+  },
 
   onPullDownRefresh: function () {
     this.onLoad();
-    // console.log('onpull调用前')
-    // var user_id = wx.getStorageSync('user_id')
-    // console.log(this.data);
-    // //console.log(user_id);
-
-    // // this.get_current_user_info(user_id);
-    // this.get_publish_of_mine(user_id);
-    // console.log('调用后')
-    // console.log(this.data);
   },
-  // onLoad1: function () {
-  //   if (app.globalData.userInfo) {
-  //     this.setData({
-  //       userInfo: app.globalData.userInfo,
-  //       hasUserInfo: true
-  //     })
-  //   } else if (this.data.canIUse) {
-  //     // 由于 getUserInfo 是网络请求，可能会在 Page.onLoad 之后才返回
-  //     // 所以此处加入 callback 以防止这种情况
-  //     app.userInfoReadyCallback = res => {
-  //       this.setData({
-  //         userInfo: res.userInfo,
-  //         hasUserInfo: true
-  //       })
-
-  //     }
-  //   } else {
-  //     // 在没有 open-type=getUserInfo 版本的兼容处理
-  //     wx.getUserInfo({
-  //       success: res => {
-  //         app.globalData.userInfo = res.userInfo
-  //         this.setData({
-  //           userInfo: res.userInfo,
-  //           hasUserInfo: true
-  //         })
-  //       }
-  //     })
-  //   }
-  // },
   getUserInfo: function (e) {
     console.log(e)
     app.globalData.userInfo = e.detail
@@ -82,13 +46,8 @@ Page({
       hasUserInfo: true
     })
   },
-
   Loadmsg: function (Data) {
     var that = this;
-    //   while (this.data.listfound.length != 1)
-    //       this.data.listfound.pop();
-    //   while (this.data.listlost.length != 1)
-    //       this.data.listlost.pop();
     var i = 0;
     console.log('Data!!!')
     console.log(Data)

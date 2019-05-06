@@ -35,7 +35,7 @@
         </view>
       </view>
 
-      <view class="btn-area">
+      <!-- <view class="btn-area">
       <radio-group class="radio-group" bindchange="radioChange">
   <label class="radio" wx:for="{{items}}">
     <radio value="{{item.name}}" checked="{{item.checked}}" />
@@ -43,7 +43,7 @@
   </label>
 </radio-group>
 
-</view>
+</view> -->
         <button class='log-in' open-type="getUserInfo" lang="zh_CN" bindgetuserinfo="bindGetUserInfo" size="mini" loading="{{loading}}"
 plain="true"type="primary" >登录</button>
  </form>
