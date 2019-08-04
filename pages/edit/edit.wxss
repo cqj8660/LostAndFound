@@ -219,7 +219,7 @@
 }
 .cells_after-title {
   margin-top: 0;
-  margin-bottom: 70rpx;
+  margin-bottom: 30rpx;
 }
 .cell {
   padding: 10px 15px;
@@ -236,6 +236,10 @@
   width:100%;
   padding-top: 0;
   padding-bottom: 0;
+}
+.location{
+  width: 30px;
+  height: 30px;
 }
 .label {
   /* position: relative;

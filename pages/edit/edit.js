@@ -6,6 +6,11 @@ var categories = app.globalData.categories
 
 Page({
   data: {
+    longitude: 116.4965075,
+    latitude: 40.006103,
+    address:"定位",
+    speed: 0,
+    accuracy: 0,
     array: categories,
     category_index: 0,
     category:'所有',
@@ -30,6 +35,7 @@ Page({
     currentTab: 0,
     imageList: [], 
     tvalue:'',
+    location:"定位"
   },
   powerDrawer: function (e) {
     var currentStatu = e.currentTarget.dataset.statu;
@@ -87,7 +93,21 @@ Page({
       urls: this.data.imageList
     })
   },
-
+  bindLocation: function(e){
+    var that = this;
+  wx.chooseLocation({
+    success: function(res) {
+      console.log(res)
+      that.setData({
+        address: res.name,
+        longitude: res.longitude,
+        latitude: res.latitude
+      })
+    },
+    fail: function(res) {},
+    complete: function(res) {},
+  })
+  },
   bindPickerChange: function (e) {
     console.log('picker发送选择改变，携带值为', e.detail.value)
     var index_val = this.data.array[e.detail.value]
@@ -162,13 +182,16 @@ Page({
   uploadAll: function (user_id, type_t, category, title, msg, imagesPaths) {
     var publish_id=null;
     var that = this;
+    var upLocation = "{\"longitude\":\"" + that.data.longitude + "\",\"latitude\":\"" + that.data.latitude + "\", \"address\":\"" + that.data.address + "\"}";
+    console.log(upLocation);
     wx.request({
-      url: serverName + '/service/dynamic/creater',
+      url: serverName + '/service/dynamic/create',
       data: {
         user_id: user_id,
         type: type_t,
         category: category,
         content: msg,
+        location: upLocation
       },
       method: 'POST',
       header: {
