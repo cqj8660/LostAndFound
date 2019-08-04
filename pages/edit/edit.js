@@ -6,9 +6,11 @@ var categories = app.globalData.categories
 
 Page({
   data: {
+    
     longitude: 116.4965075,
     latitude: 40.006103,
-    address:"定位",
+    displayAddress:"定位",
+    address: '',
     speed: 0,
     accuracy: 0,
     array: categories,
@@ -99,6 +101,7 @@ Page({
     success: function(res) {
       console.log(res)
       that.setData({
+        displayAddress: res.name,
         address: res.name,
         longitude: res.longitude,
         latitude: res.latitude
@@ -206,7 +209,73 @@ Page({
           var temp = [];
         for (var path in imagesPaths){
           console.log(path)
-          
+          wx.uploadFile({
+            url: serverName + '/service/dynamic/picRcgnz',
+            filePath: imagesPaths[path],
+            name: "images",
+            success: function (res) {
+              console.log('图片识别！')
+              console.log(res);
+              var data = JSON.parse(res.data);
+              wx.showModal({
+                title: '提示',
+                content: '识别分类为' + data.data.keyword,
+                confirmText: '确认',
+                cancelText: '识别不准',
+                success(res){
+                  if(res.confirm)
+                    {
+                      console.log('识别准确')
+                      wx.request({
+                        url: serverName + '/service/dynamic/update',
+                        method: 'POSt',
+                        data: {
+                          dynamic_id: dynamic_id,
+                          category: data.data.keyword
+                        },
+                        header: {
+                          'content-type': 'application/x-www-form-urlencoded' // 默认值
+                        },
+                        success: function (e) {
+                          console.log('修改上传图片')
+                          console.log(e)
+                        }
+                      })
+                    }
+                  else if(res.cancel)
+                  {
+                    var itemList = ['校园卡', '雨伞', '钱包', '其他'];
+                      console.log('识别不准')
+                    wx.showActionSheet({
+                      itemList: ['校园卡', '雨伞', '钱包', '其他'],//上传分类
+                      success(res){
+                        wx.request({
+                          url: serverName + '/service/dynamic/update',
+                          method: 'POST',
+                          data: {
+                            dynamic_id: dynamic_id,
+                            category: itemList[res.tapIndex]
+                          },
+                          header: {
+                            'content-type': 'application/x-www-form-urlencoded' // 默认值
+                          },
+                          success: function (e) {
+                            console.log('修改上传图片')
+                            console.log(e)
+                          }
+                        })
+                      },
+                      fail(res){
+                        console.log(res.errMsg);
+                      }
+                    })
+                }}
+              })
+            },
+            fail: function (err) {
+              console.log(err)
+            }
+          })
           wx.uploadFile({
             url: serverName + '/service/upload/uploadImg',
             filePath: imagesPaths[path],
