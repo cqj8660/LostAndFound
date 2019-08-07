@@ -164,22 +164,22 @@ Page({
       var user_id = that.data.publish_data[i].user_id;
       var str = that.data.publish_data[i].ctime;
       var Submission_time = str.substring(5, 10) + " " + that.data.publish_data[i].ctime.substring(11, str.length - 1);
-      // Submission_time[5]=Submission_time[Submission_time.length - 1] =' '
       var imageurl = '';
-      // console.log(""+that.data.publish_data[i].images);
       var imageList = (that.data.publish_data[i].images);
-      // console.log('imageList:', imageList);
       var user_icon = that.data.publish_data[i].user_info.avatar_url;
       var nick_name = that.data.publish_data[i].user_info.nick_name;
-      // var avatarUrl = that.data.publish_data[i].avatarUrl,
+      var location = that.data.publish_data[i].location;
+      var address = location.address;
+      if(address)
+        address = "#"+address;
       if (that.data.publish_data[i].images)
         imageurl =that.data.publish_data[i].images[0];
       if (that.data.publish_data[i].type == 'found')
         this.data.listfound.push({
-          userid:user_id,username: nick_name, text: Msg, imagelist:imageList,image: imageurl, usericon: user_icon, sub_time: Submission_time
+          userid:user_id,username: nick_name, text: Msg, imagelist:imageList,image: imageurl, usericon: user_icon, sub_time: Submission_time, address: address
         })
       else
-        this.data.listlost.push({ userid: user_id, username: nick_name, text: Msg, imagelist: imageList, image: imageurl, usericon: user_icon, sub_time: Submission_time });
+        this.data.listlost.push({ userid: user_id, username: nick_name, text: Msg, imagelist: imageList, image: imageurl, usericon: user_icon, sub_time: Submission_time, address: address });
     }
     if (this.data.activeIndex == 1)
       this.setData({
@@ -214,11 +214,8 @@ Page({
     console.log(user_id);
     while(this.data.listfound.length!=1)
       this.data.listfound.pop();
-    // console.log('清空');
-    // console.log(this.data.listfound);
     while (this.data.listlost.length!= 1)
       this.data.listlost.pop();
-    // console.log(this.data.listlost);
     var that = this;
 
     this.index = 1

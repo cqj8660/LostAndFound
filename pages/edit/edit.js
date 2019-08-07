@@ -7,8 +7,8 @@ var categories = app.globalData.categories
 Page({
   data: {
     
-    longitude: 116.4965075,
-    latitude: 40.006103,
+    longitude: "",
+    latitude: "",
     displayAddress:"定位",
     address: '',
     speed: 0,

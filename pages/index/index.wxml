@@ -47,8 +47,10 @@
           </image>
           </block>
         </view>
-        <view><text class = 'time'>{{item.sub_time}}</text></view>
-
+        <view class="msginfo">
+        <text class ='time'>{{item.sub_time}}</text>
+          <view class="address">{{item.address}}</view>
+          </view>
       </view>
     </block>
   </view>
