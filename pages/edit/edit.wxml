@@ -137,7 +137,7 @@
           <image class="location"src='../../images/edit/location.png'></image>
           </view>
           <view class="cell__bd">
-          <view bindtap="bindLocation"class="input">{{address}}</view>
+          <view bindtap="bindLocation"class="input">{{displayAddress}}</view>
           
           </view>
         </view>

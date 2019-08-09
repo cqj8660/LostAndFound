@@ -6,7 +6,7 @@ var categories = app.globalData.categories
 
 Page({
   data: {
-    
+    itemList: [],
     longitude: "",
     latitude: "",
     displayAddress:"定位",
@@ -42,6 +42,22 @@ Page({
   powerDrawer: function (e) {
     var currentStatu = e.currentTarget.dataset.statu;
     this.util(currentStatu)
+  },
+  onLoad: function (options) {
+    var that = this;
+    wx.request({
+    url:'https://lostandfound.yiwangchunyu.wang/service/dynamic/categories',
+      method: 'POST',
+      header: {
+        'content-type': 'application/x-www-form-urlencoded' // 默认值
+      },
+      success: function (res) {
+        var tempList = res.data.data;
+        that.setData({
+          itemList:tempList
+        })
+      }
+    })
   },
   navbarTap: function (e) {
     this.setData({
@@ -96,6 +112,7 @@ Page({
     })
   },
   bindLocation: function(e){
+    console.log('bindLocation');
     var that = this;
   wx.chooseLocation({
     success: function(res) {
@@ -107,7 +124,9 @@ Page({
         latitude: res.latitude
       })
     },
-    fail: function(res) {},
+    fail: function(res) {
+      console.log(res);
+    },
     complete: function(res) {},
   })
   },
@@ -184,8 +203,8 @@ Page({
   },
   uploadAll: function (user_id, type_t, category, title, msg, imagesPaths) {
     var publish_id=null;
-    var that = this;
-    var upLocation = "{\"longitude\":\"" + that.data.longitude + "\",\"latitude\":\"" + that.data.latitude + "\", \"address\":\"" + that.data.address + "\"}";
+    var thatInstance = this;
+    var upLocation = "{\"longitude\":\"" + thatInstance.data.longitude + "\",\"latitude\":\"" + thatInstance.data.latitude + "\", \"address\":\"" + thatInstance.data.address + "\"}";
     console.log(upLocation);
     wx.request({
       url: serverName + '/service/dynamic/create',
@@ -244,17 +263,17 @@ Page({
                     }
                   else if(res.cancel)
                   {
-                    var itemList = ['校园卡', '雨伞', '钱包', '其他'];
+
                       console.log('识别不准')
                     wx.showActionSheet({
-                      itemList: ['校园卡', '雨伞', '钱包', '其他'],//上传分类
+                      itemList: thatInstance.data.itemList,//上传分类
                       success(res){
                         wx.request({
                           url: serverName + '/service/dynamic/update',
                           method: 'POST',
                           data: {
                             dynamic_id: dynamic_id,
-                            category: itemList[res.tapIndex]
+                            category: thatInstance.data.itemList[res.tapIndex]
                           },
                           header: {
                             'content-type': 'application/x-www-form-urlencoded' // 默认值
@@ -287,7 +306,7 @@ Page({
               temp.push(fdata[0])
               console.log(temp);
               if(temp.length == imagesPaths.length)
-                that.updatePhoto(dynamic_id,temp);
+                thatInstance.updatePhoto(dynamic_id,temp);
             },
             fail: function (err) {
               console.log(err)

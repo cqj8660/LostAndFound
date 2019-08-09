@@ -5,9 +5,8 @@ var app = getApp()
 var utils = require('../../utils/util.js')
 var flag = true;
 
-
+var that = this;
 var serverName = app.globalData.serverName
-var Category = ['所有', '校园卡', '雨伞', '钱包']
 Page({
   data: {
     check: true,//判断是否是测试账号
@@ -31,7 +30,7 @@ Page({
     refresh:0,
     plain: false,
     actionSheetHidden: true,
-    actionSheetItems: Category
+    actionSheetItems: ['所有']
 
 
   },
@@ -63,6 +62,14 @@ Page({
     })
     this.show_publish_infos(this.data.type_t, this.data.cur_type, this)
   },
+  bind钥匙: function (e) {
+    this.setData({
+      actionSheetHidden: !this.data.actionSheetHidden,
+      cur_type: '钥匙',
+      listofitem: []
+    })
+    this.show_publish_infos(this.data.type_t, this.data.cur_type, this)
+  },
   bind雨伞: function (e) {
     this.setData({
       actionSheetHidden: !this.data.actionSheetHidden,
@@ -71,12 +78,29 @@ Page({
     })
     this.show_publish_infos( this.data.type_t, this.data.cur_type, this)
   },
+  bind证件: function (e) {
+    this.setData({
+      actionSheetHidden: !this.data.actionSheetHidden,
+      cur_type: '证件',
+      listofitem: []
+    })
+    this.show_publish_infos(this.data.type_t, this.data.cur_type, this)
+  },
+  bind其他: function (e) {
+    this.setData({
+      actionSheetHidden: !this.data.actionSheetHidden,
+      cur_type: '其他',
+      listofitem: []
+    })
+    this.show_publish_infos(this.data.type_t, this.data.cur_type, this)
+  },
   actionSheetTap: function (e) {
     this.setData({
       actionSheetHidden: !this.data.actionSheetHidden
     })
   },
   actionSheetChange: function (e) {
+    console.log('change', e);
     this.setData({
       actionSheetHidden: !this.data.actionSheetHidden
     })
@@ -113,7 +137,7 @@ Page({
     //   })
     // })
     this.show_publish_infos(this.data.type_t, '所有', this)
-  } ,
+  }, 
 
   stateswitch: function (e) {
     var that = this;
@@ -169,9 +193,12 @@ Page({
       var user_icon = that.data.publish_data[i].user_info.avatar_url;
       var nick_name = that.data.publish_data[i].user_info.nick_name;
       var location = that.data.publish_data[i].location;
+      var type = that.data.publish_data[i].category;
       var address = location.address;
       if(address)
-        address = "#"+address;
+        address = "#"+ type + " #"+address;
+      else
+        address = "#" + type;
       if (that.data.publish_data[i].images)
         imageurl =that.data.publish_data[i].images[0];
       if (that.data.publish_data[i].type == 'found')
@@ -193,7 +220,23 @@ Page({
  * 生命周期函数--监听页面显示
  */
   onShow: function () {
-   // this.onLoad
+    var that = this;
+    wx.request({
+      url: 'https://lostandfound.yiwangchunyu.wang/service/dynamic/categories',
+      method: 'POST',
+      header: {
+        'content-type': 'application/x-www-form-urlencoded' // 默认值
+      },
+      success: function (res) {
+        console.log(res.data.data);
+        var tempList = ['所有'];
+        for(var i = 0; i < res.data.data.length; i++)
+          tempList.push(res.data.data[i]);
+        that.setData({
+          actionSheetItems: tempList
+        })
+      }
+    })
   },
   onPullDownRefresh: function () {
     this.onload;
